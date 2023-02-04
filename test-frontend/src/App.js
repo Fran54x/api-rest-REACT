@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { useEffect, useState } from 'react';
 
@@ -42,7 +41,52 @@ function App() {
   ];
   const [apiData, setApiData] = useState([]);
 
+  const [name, setName] = useState([]);
+
+  const onSubmit = () => {
+    fetch('https://example.com/posts', {
+    method: 'POST',
+    headers:{
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: name,
+      isComplete: false
+    })
+  })
+    .then(response => response.json())
+    .then(
+      (result) => {
+        // quiero que mandes a llamar a la api
+        console.log('Success:', result)
+      },
+      (error) => {
+          console.error('Error:', error);
+    });
+  }
+
+  const onKeyUp = (e) => setName(e.target.value);
+
+  const onChecked = (checkBox, id) => {
+    const value = checkBox.target.checked
+    console.log(id + ": " + value);
+    // actualizar el item 
+    // METODO PUT O POST
+  //   fetch('https://example.com/posts', {
+  //   method: 'POST',
+  //   headers:{
+  //     'Content-Type': 'application/json'
+  //   },
+  //   body: JSON.stringify({
+  //     id: id,
+  //     isComplete: value
+  //   })
+  // })
+}
+  
+
   useEffect(() => {
+    // HACER METODO GET retorne objeto
     // fetch("https://jsonplaceholder.typicode.com/users/")
     //     .then(res => res.json())
     //     .then(
@@ -61,39 +105,36 @@ function App() {
     <div className="App">
       <header className="App-header">
 
-        <form>
-          <label> Id:
-            <input type="number" value={this.state.value} onChange={this.handleChange}></input>
-          </label>
-          <label> Name:
-            <input type="text" value={this.state.value} onChange={this.handleChange}></input>
-          </label>
-          <label> Complete:
-            <input type="checkbox" value={this.state.value} onChange={this.handleChange}></input>
-          </label>
-          <input type="submit" value="Submit"></input>
+        <form onSubmit={onSubmit}>
+          <label>Name: </label>
+        
+              <input type="text" name='name' autoComplete='off'
+                      onKeyUp={onKeyUp}></input>
+              <input type="submit" value="Submit"></input>
         </form>
 
         <table>
           <thead>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Complete</th>
+            <tr>
+              <th>Id</th>
+              <th>Name</th>
+              <th className="checkbox-table">Complete</th>
+            </tr>
           </thead>
+          <tbody>
             {apiData.map((item, index) => (
-              <tr>
-              <td key={index}>{item.id}</td>
-              <td key={index}>{item.name}</td>
-              <td key={index}><input type={'checkbox'} defaultChecked={item.isComplete}></input></td>
+              <tr key={index}>
+                <td >{item.id}</td>
+                <td >{item.name}</td>
+                <td className="checkbox-table">
+                  <input type={'checkbox'} 
+                        defaultChecked={item.isComplete}
+                        onChange={(checkBox) => onChecked(checkBox, item.id)}/>
+                </td>
               </tr>
             ))}
+          </tbody>
         </table>
-
-        {/* <div style={{display: "flex", gap: "10px", flexWrap: "wrap", maxWidth: "800px"}}>
-          {apiData.map((item, index) => (
-            <div key={index}>{"Nombre: " + item.name}{" Edad: " + item.age} + ","</div>
-          ))}
-        </div> */}
       </header>
     </div>
   );
