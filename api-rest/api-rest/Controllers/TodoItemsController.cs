@@ -50,6 +50,8 @@ namespace api_rest.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTodoItem(long id, TodoItemDTO todoItemDTO)
         {
+            // ESTA MANERA DE PREGUNTAR NO ES DEL TODO CORRECTA, DEBERIAS DE BUSCAR DIRECTAMENTE EL ID QUE TE ESTAN MANDANDO COMO PARAMETRO
+            // O SI NO, NO PEDIR PARAMETRO Y UTILIZAR DIRECTAMENTE EL DEL OBJETO, ESTO ES MUY REDUNDANTE Y POCO COMÚN
             if (id != todoItemDTO.Id)
             {
                 return BadRequest();
@@ -64,6 +66,7 @@ namespace api_rest.Controllers
             todoItem.Name = todoItemDTO.Name;
             todoItem.IsComplete= todoItemDTO.IsComplete;
 
+            //SI YA NO VAS A UTILIZAR ESTE CÓDUGO DEBES BORRARLO, SOLO ESTORBA AL LEERLO
             //_context.Entry(todoItemDTO).State = EntityState.Modified;
 
             try

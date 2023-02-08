@@ -1,7 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using api_rest.Models;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+
+//Add websites to CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        b =>
+        {
+            b.AllowAnyOrigin();
+            b.AllowAnyMethod();
+            b.AllowAnyHeader();
+        });
+});
 
 // Add services to the container.
 
@@ -20,6 +33,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// ADDING CORS
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
