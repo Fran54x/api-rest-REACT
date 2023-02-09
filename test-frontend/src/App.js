@@ -1,116 +1,98 @@
-import './App.css';
-import { useEffect, useState } from 'react';
+import "./App.css";
+import React, { useEffect, useState } from "react";
 
 function App() {
-  const dataFromApi = [
-    {
-      id: 0,
-      name: "Abraham",
-      isComplete: true
-    },
-    {
-      id: 1,
-      name: "Manuel",
-      isComplete: true
-    },
-    {
-      id: 2,
-      name: "Wicho",
-      isComplete: true
-    },
-    {
-      id: 3,
-      name: "Pedro",
-      isComplete: false
-    },
-    {
-      id: 4,
-      name: "Maria",
-      isComplete: false
-    },
-    {
-      id: 5,
-      name: "Miguel",
-      isComplete: true
-    },
-    {
-      id: 6,
-      name: "Toto",
-      isComplete: false
-    }
-  ];
+  const urlHost = "https://localhost:7073/api";
   const [apiData, setApiData] = useState([]);
 
   const [name, setName] = useState([]);
 
-  const onSubmit = () => {
-    fetch('https://example.com/posts', {
-    method: 'POST',
-    headers:{
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: name,
-      isComplete: false
-    })
-  })
-    .then(response => response.json())
-    .then(
-      (result) => {
-        // quiero que mandes a llamar a la api
-        console.log('Success:', result)
+  const onSubmit = (e) => {
+    e.preventDefault();
+    fetch(`${urlHost}/TodoItems`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      (error) => {
-          console.error('Error:', error);
-    });
-  }
+      body: JSON.stringify({
+        name: name,
+        isComplete: false,
+      }),
+    })
+      .then((response) => response.json())
+      .then(
+        (result) => {
+          // quiero que mandes a llamar a la api
+          console.log("Success:", result);
+          onGetItemsFromApi();
+        },
+        (error) => {
+          console.error("Error:", error);
+        }
+      );
+  };
 
   const onKeyUp = (e) => setName(e.target.value);
 
-  const onChecked = (checkBox, id) => {
-    const value = checkBox.target.checked
+  const onChecked = (checkBox, item) => {
+    const id = item.id;
+    const value = checkBox.target.checked;
     console.log(id + ": " + value);
-    // actualizar el item 
+    // actualizar el item
     // METODO PUT O POST
-  //   fetch('https://example.com/posts', {
-  //   method: 'POST',
-  //   headers:{
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({
-  //     id: id,
-  //     isComplete: value
-  //   })
-  // })
-}
-  
+    fetch(`${urlHost}/TodoItems/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        name: item.name,
+        isComplete: value,
+      }),
+    })
+      .then((response) => response)
+      .then(
+        (result) => {
+          onGetItemsFromApi();
+        },
+        (error) => {
+          console.error("Error:", error);
+        }
+      );
+  };
+
+  const onGetItemsFromApi = () => {
+    fetch(`${urlHost}/TodoItems`)
+      .then((res) => res.json())
+      .then(
+        (data) => {
+          setApiData(data);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  };
 
   useEffect(() => {
     // HACER METODO GET retorne objeto
-    // fetch("https://jsonplaceholder.typicode.com/users/")
-    //     .then(res => res.json())
-    //     .then(
-    //         (data) => {
-    //           console.log(data)
-    //           setApiData(data);
-    //         },
-    //         (error) => {
-    //           console.log(error);
-    //         }
-    //     )
-    setApiData(dataFromApi)
-  }, [])
+    onGetItemsFromApi();
+  }, []);
 
   return (
     <div className="App">
       <header className="App-header">
-
         <form onSubmit={onSubmit}>
           <label>Name: </label>
-        
-              <input type="text" name='name' autoComplete='off'
-                      onKeyUp={onKeyUp}></input>
-              <input type="submit" value="Submit"></input>
+
+          <input
+            type="text"
+            name="name"
+            autoComplete="off"
+            onKeyUp={onKeyUp}
+          ></input>
+          <input type="submit" value="Submit"></input>
         </form>
 
         <table>
@@ -124,12 +106,14 @@ function App() {
           <tbody>
             {apiData.map((item, index) => (
               <tr key={index}>
-                <td >{item.id}</td>
-                <td >{item.name}</td>
+                <td>{item.id}</td>
+                <td>{item.name}</td>
                 <td className="checkbox-table">
-                  <input type={'checkbox'} 
-                        defaultChecked={item.isComplete}
-                        onChange={(checkBox) => onChecked(checkBox, item.id)}/>
+                  <input
+                    type={"checkbox"}
+                    defaultChecked={item.isComplete}
+                    onChange={(checkBox) => onChecked(checkBox, item)}
+                  />
                 </td>
               </tr>
             ))}
