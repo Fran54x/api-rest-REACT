@@ -1,5 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faX } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const urlHost = "https://localhost:7073/api";
@@ -9,27 +11,33 @@ function App() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    fetch(`${urlHost}/TodoItems`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: name,
-        isComplete: false,
-      }),
-    })
-      .then((response) => response.json())
-      .then(
-        (result) => {
-          // quiero que mandes a llamar a la api
-          console.log("Success:", result);
-          onGetItemsFromApi();
+    if(name.length === 0){
+      console.log("Agrega datos");
+    }
+    else{
+      fetch(`${urlHost}/TodoItems`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        (error) => {
-          console.error("Error:", error);
-        }
-      );
+        body: JSON.stringify({
+          name: name,
+          isComplete: false,
+        }),
+      })
+        .then((response) => response.json())
+        .then(
+          (result) => {
+            // quiero que mandes a llamar a la api
+            console.log("Success:", result);
+            onGetItemsFromApi();
+            setName(e.target.value);
+          },
+          (error) => {
+            console.error("Error:", error);
+          }
+        );
+    }
   };
 
   const onKeyUp = (e) => setName(e.target.value);
@@ -75,6 +83,23 @@ function App() {
       );
   };
 
+  const deleteItem = (item) => {
+    const id= item.id;
+    console.log("ID eliminado: " + id);
+   fetch(`${urlHost}/TodoItems/` + id.toString(), {
+      method: "DELETE"
+    })
+      .then((res)=> {
+        onGetItemsFromApi();
+        if(!res.ok){
+          throw new Error("Algo ha salido mal");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
+
   useEffect(() => {
     // HACER METODO GET retorne objeto
     onGetItemsFromApi();
@@ -101,6 +126,7 @@ function App() {
               <th>Id</th>
               <th>Name</th>
               <th className="checkbox-table">Complete</th>
+              <th className="delete-table">Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -114,6 +140,11 @@ function App() {
                     defaultChecked={item.isComplete}
                     onChange={(checkBox) => onChecked(checkBox, item)}
                   />
+                </td>
+                <td className="delete-table">
+                  <button className="delete-button material-symbols-outlined " onClick={() => deleteItem(item)}>
+                    <FontAwesomeIcon icon={faX} />
+                  </button>
                 </td>
               </tr>
             ))}
